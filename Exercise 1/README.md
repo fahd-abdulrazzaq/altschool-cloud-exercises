@@ -1,1 +1,1 @@
-#This IS The Output O f The ifconfig Command
+#This IS The Output Of The "ifconfig" Command
