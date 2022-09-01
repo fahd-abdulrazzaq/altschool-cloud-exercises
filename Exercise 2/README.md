@@ -1,29 +1,10 @@
-## 10 Linux commands and their functions
+### Changing Linux Timezone
+1. Use command "timedatecl" to view current date & timezone.
 
-1. History
-The History command is used to display all previous commands issued.
-![Screenshot.png](https://github.com/fahd-abdulrazzaq/altschool-cloud-exercises/blob/main/Exercise%202/Capture.PNG1.PNG?raw=true)
+![date.png](https://github.com/fahd-abdulrazzaq/altschool-cloud-exercises/blob/main/Exercise%202/dates1.PNG?raw=true)
 
-2. Exit 
-This Command is used to end and  log out of the Linux Session
-![screenshot2](https://github.com/fahd-abdulrazzaq/altschool-cloud-exercises/blob/main/Exercise%202/Capture.PNG2.PNG?raw=true)
+2. use command "timedatecl list-timezones" to view all available timezones.
 
-3. Netstat
-Netstat shows you the available ports and which ports are in use.
-![netstat.png](https://github.com/fahd-abdulrazzaq/altschool-cloud-exercises/blob/main/Exercise%202/Capture.PNG3.PNG?raw=true)
+![date2.png](https://github.com/fahd-abdulrazzaq/altschool-cloud-exercises/blob/main/Exercise%202/date2.PNG?raw=true)
 
-4. ps
-ps is used to display running processes
-![ps.png](https://github.com/fahd-abdulrazzaq/altschool-cloud-exercises/blob/main/Exercise%202/Capture.PNG4.PNG?raw=true)
-
-5.
-
-6.
-
-7.
-
-8.
-
-9.
-
-10.
+3. use command " sudo set-timezone + your preferred timezone from the list".
