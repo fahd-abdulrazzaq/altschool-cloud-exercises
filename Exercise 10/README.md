@@ -1,4 +1,4 @@
-##NetMask Assignment
+**NetMask Assignment**
 
 1) Network Address = 193.16.20.32
 2) Host Number = 8
