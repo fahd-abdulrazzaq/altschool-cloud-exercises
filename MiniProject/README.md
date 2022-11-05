@@ -2,7 +2,8 @@
 ## DEPLOY A LARAVEL PAGE USING MYSQL && APACHE
 
 ### RESULT
-![lrvl_screengrab] (https://github.com/fahd-abdulrazzaq/altschool-cloud-exercises/blob/main/MiniProject/Server.PNG)
+
+![lrvl_screengrab](https://github.com/fahd-abdulrazzaq/altschool-cloud-exercises/blob/main/MiniProject/Server.PNG)
 
 
 1) Project cloned from https://github.com/f1amy/laravel-realworld-example-app.git 
