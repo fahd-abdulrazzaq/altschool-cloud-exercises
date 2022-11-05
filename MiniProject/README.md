@@ -10,3 +10,4 @@
 2) Deployed using , MySql && PhP
 3) Domain Name Configured using Namecheap.com
 4) project Hosted on Digital Ocean
+5) Detailed Walkthrough @ https://www.iankumu.com/blog/how-to-deploy-laravel-on-apache-server/
