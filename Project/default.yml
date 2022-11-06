@@ -1,0 +1,7 @@
+---
+mysql_root_password: "root"
+app_user: "root"
+http_host: "swft.com"
+http_conf: "swft.com.conf"
+http_port: "80"
+disable_default: true
