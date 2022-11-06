@@ -1,0 +1,6 @@
+147.182.197.232
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=root
+#ansible_ssh_pass=vagrant
