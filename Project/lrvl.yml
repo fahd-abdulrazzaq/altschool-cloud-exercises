@@ -1,0 +1,6 @@
+---
+app_user: "fahd"
+http_host: "swft.com"
+http_conf: "swft.conf"
+http_port: "80"
+disable_default: true
