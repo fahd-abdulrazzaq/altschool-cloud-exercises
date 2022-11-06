@@ -1,1 +1,321 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: true
+  vars_files: 
+    - vars/default.yml
+    
+  tasks:
+    - name: Install Git
+      apt:
+        name: git
+        state: latest
 
+    - name: Install net-tools
+      apt:
+        name: net-tools
+        state: latest
+      
+    - name: Install curl
+      apt: 
+        name: curl
+        state: latest
+        
+    - name: Install Apache Requirements
+      apt: 
+        name: aptitude  
+        state: latest 
+        force_apt_get: yes
+        
+    - name: Install Apache
+      apt: 
+        name: apache2 
+        state: latest
+
+
+    - name: Allow Traffic On Http port
+      ufw: 
+        rule: allow
+        port: "80"
+        proto: tcp
+
+    - name: Install python3
+      apt: 
+        name: python3
+        state: latest
+    
+    - name: Create document root
+      file:
+        path: "/var/www/html/{{ http_host }}"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Set up Apache virtualhost
+      template:
+        src: "swft.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ http_conf }}"
+    - name: Enable new site
+      shell: /usr/sbin/a2ensite {{ http_conf }}
+
+    - name: start and enable mysql service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: creating mysql user 
+      mysql_user:
+        name: "root"
+        password: "root"
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+    - name: creating db
+      mysql_db:
+        name: "swft"
+        state: present
+    - name: Enable remote login to mysql
+      lineinfile:
+         path: /etc/mysql/mysql.conf.d/mysqld.cnf
+         regexp: '^bind-address'
+         line: 'bind-address = 0.0.0.0'
+         backup: yes
+      notify:
+        - Restart mysql
+
+    - name: Restart mysql
+      service:
+        name: mysql
+        state: restarted
+
+    - name: Install PHP
+      apt:
+        name: php
+        state: latest
+
+    - name: Install PHP MB
+      apt: 
+        name: php-mbstring 
+        state: latest
+
+    - name: Get Unzip
+      apt: 
+        name: unzip 
+        state: latest
+
+    - name: Install PHP XML
+      apt: 
+        name: php-xml 
+        state: latest
+
+    - name: Configure PhP.ini file
+      become: true
+      lineinfile:
+        dest: /etc/php/8.1/cli/php.ini
+        regexp: "cgi.fix_pathinfo "
+        line: "cgi.fix_pathinfo = 1"
+
+    - name: Download and Install Composer
+      command: curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php 
+      
+    - name: Change file permissions
+      ansible.builtin.file:
+        path: /var/www/html/swft.com
+        owner: www-data
+        group: www-data
+        mode: '0775'
+
+    - name: Apache file permissions
+      ansible.builtin.file:
+        path: /var/www/html/swft.com/storage
+        owner: www-data
+        group: www-data
+        mode: '0775'
+
+
+    - name: Change artisan Permissions
+      shell: sudo chmod 777 /var/www/html/swft.com/artisan
+
+    #- name: Artisan Key Gen 
+      #shell: php /var/www/html/swft.com/artisan key:generate
+
+    #- name: Artisan Migrate
+     # shell: php /var/www/html/swft.com/artisan migrate
+      #ignore_errors:  true
+
+    #- name: Artisan Migrate (Fresh)
+     # shell: php /var/www/html/swft.com/artisan migrate:fresh
+      #ignore_errors: true
+
+    - name: Configure Composer Globally
+      command: sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+    - name: Make Composer Executable
+      file:
+        path: /usr/local/bin/composer
+        mode: a+x
+        state: file
+
+    - name: Configure Apache
+      ansible.builtin.file:
+        path: /etc/apache2/sites-available/swft.conf
+        state: touch
+        mode: '0755'
+
+    - name: Still Configuring Apache
+      ansible.builtin.blockinfile:
+        path: /etc/apache2/sites-available/swft.conf
+        block:   
+        src: /home/vagrant/test-x/vars/files/apache.conf.j2
+
+   
+    
+    - name: Create an apache virtual host configuration file
+      ansible.builtin.copy:
+        dest: /var/www/html/swft.com/.env
+        content: |
+          APP_NAME="Laravel Realworld Example App"
+          APP_ENV=local
+          APP_KEY=
+          APP_DEBUG=true
+          APP_URL=http://localhost
+          APP_PORT=3000
+
+          LOG_CHANNEL=stack
+          LOG_DEPRECATIONS_CHANNEL=null
+          LOG_LEVEL=debug
+
+          DB_CONNECTION=mysql
+          DB_HOST=localhost
+          DB_PORT=3306
+          DB_DATABASE=laravel-realworld
+          DB_USERNAME=swft
+          DB_PASSWORD=root
+
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=file
+          FILESYSTEM_DISK=local
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          SESSION_LIFETIME=120
+          MEMCACHED_HOST=127.0.0.1
+
+          REDIS_HOST=127.0.0.1
+          REDIS_PASSWORD=null
+          REDIS_PORT=6379
+
+          MAIL_MAILER=smtp
+          MAIL_HOST=mailhog
+          MAIL_PORT=1025
+          MAIL_USERNAME=null
+          MAIL_PASSWORD=null
+          MAIL_ENCRYPTION=null
+          MAIL_FROM_ADDRESS="fadabdul15@gmail.com"
+          MAIL_FROM_NAME="${APP_NAME}"
+
+          AWS_ACCESS_KEY_ID=
+          AWS_SECRET_ACCESS_KEY=
+          AWS_DEFAULT_REGION=us-east-1
+          AWS_BUCKET=
+          AWS_USE_PATH_STYLE_ENDPOINT=false
+
+          PUSHER_APP_ID=
+          PUSHER_APP_KEY=
+          PUSHER_APP_SECRET=
+          PUSHER_APP_CLUSTER=mt1
+          MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+          MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+
+          L5_SWAGGER_GENERATE_ALWAYS=true
+          SAIL_XDEBUG_MODE=develop,debug
+          SAIL_SKIP_CHECKS=true
+
+
+    - name: Remove Apache Default Site
+      file: 
+        name: /etc/apache2/sites-enabled/000-default.conf
+        state: absent
+    
+    - name: Create virtual host config file
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/swft.com.conf
+        content: |
+          <VirtualHost *:80>
+              ServerAdmin admin@swft.me
+              ServerName .me
+              ServerAlias www.swft.me
+              DocumentRoot /var/www/html/swft.com/public
+    
+              <Directory /var/www/html/swft.com/public>
+                  AllowOverride All
+              </Directory>
+    
+              ErrorLog ${APACHE_LOG_DIR}/error.log
+              CustomLog ${APACHE_LOG_DIR}/access.log combined
+          </VirtualHost> 
+
+    - name: Change Permissions for Conf file
+      shell: sudo chmod -R 777 /etc/apache2/sites-available/swft.com.conf
+
+    - name: Enable rewrite
+      command: sudo a2enmod rewrite 
+      
+    - name: Enable Site 
+      command: sudo a2ensite swft.conf
+
+    - name: Update site config
+      command: a2ensite swft.com
+    - name: Create Web.php file
+      ansible.builtin.copy:
+        dest: /var/www/html/swft.com/routes/web.php
+        content: |
+          <?php
+
+          Route::get('/', function () {
+              return view('welcome');
+          });
+
+
+    - name: "UFW - Allow HTTP on port {{ http_port }}"
+      ufw:
+        rule: allow
+        port: "{{ http_port }}"
+        proto: tcp
+
+    - name: Create Site directory
+      ansible.builtin.file:
+        path: /var/www/html/swft.com
+        state: directory
+        mode: '0755'
+
+
+    - name: Clone the Laravel Project
+      git:
+        repo: https://github.com/f1amy/laravel-realworld-example-app.git
+        dest: /var/www/html/swft.com/laravel-realworld-example-app
+        clone: yes
+        update: no
+
+    - name: Change Permissions for composer.inst
+      shell: sudo chmod -R 777 /var/www/html/swft.com/
+
+    - name: Set up SSL
+      apt_repository:
+         validate_certs: no
+         repo: 'ppa:certbot/certbot'
+         state: present    
+    
+    - name: Set timezone to Lagos
+      tags: setup
+      timezone:
+        name: Africa/Lagos
+
+    - name: setup postgresql
+      script: 
+        /home/vagrant/test-x/test.sh
+      ignore_errors: true
+
+    
+
+
+    
